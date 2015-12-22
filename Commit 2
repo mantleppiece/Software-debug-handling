@@ -1,0 +1,106 @@
+Public Class Form1
+
+    SqlCeConnection mySqlConnection;
+    populateListBox();
+
+    Private Sub Form1_Load(sender As Object, e As EventArgs) Handles MyBase.Load
+
+    End Sub
+
+    Private Sub Label4_Click(sender As Object, e As EventArgs) Handles Label4.Click
+
+    End Sub
+
+        	public void populateListBox()
+    	{
+       	mySqlConnection =
+            	new SqlCeConnection(@"Data Source=C:\temp\Mydatabase.sdf ");
+
+       	String selcmd = "SELECT studentId, studentName, studentAddress FROM tblstudent ORDER BY studentName";
+
+       	SqlCeCommand mySqlCommand = new SqlCeCommand(selcmd, mySqlConnection);
+
+       	try
+       	{
+           	mySqlConnection.Open();
+
+           	SqlCeDataReader mySqlDataReader = mySqlCommand.ExecuteReader();
+
+           	lbxstudents.Items.Clear();
+
+           	while (mySqlDataReader.Read())
+           	{
+
+                   lbxstudents.Items.Add(mySqlDataReader["studentID"] + " " +
+                      	mySqlDataReader["studentName"] + mySqlDataReader["studentAddress"]);
+
+
+           	}
+         	}
+
+       	catch (SqlCeException ex)
+       	{
+
+         	  MessageBox.Show(ID + " .." + ex.Message, Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Error);
+       	}
+
+    	}
+
+
+
+    	public void cleartxtBoxes()
+    	{
+        	txtId.Text = txtName.Text = txtAddress.Text = "";
+    	}
+
+   public bool checkInputs()
+    	{
+        	bool rtnvalue = true;
+
+       	if (string.IsNullOrEmpty(txtId.Text) ||
+           	string.IsNullOrEmpty(txtName.Text) ||
+           	string.IsNullOrEmpty(txtAddress.Text))
+        	{
+            	MessageBox.Show("Error: Please check your inputs");
+            	rtnvalue = false;
+        	}
+
+        	return (rtnvalue);
+
+    	}
+
+
+   public void insertRecord(String ID, String name, String address, String commandString)
+    	{
+
+        	try
+  	      {
+            	SqlCeCommand cmdInsert = new SqlCeCommand(commandString, mySqlConnection);
+
+                cmdInsert.Parameters.AddWithValue("@ID", ID);
+                cmdInsert.Parameters.AddWithValue("@name", name);
+            	cmdInsert.Parameters.AddWithValue("@address", address);
+            	cmdInsert.ExecuteNonQuery();
+        	}
+        	catch (SqlCeException ex)
+        	{
+            	MessageBox.Show(ID + " .." + ex.Message, Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Error);
+        	}
+
+    	}
+
+26.           Open Form1.Design (in design view), right-click on Add button, properties, double-click on Click event.
+
+27.           Add the following code inside   btnAdd_Click() method.
+
+
+     	if (checkInputs())
+  	      {
+
+            	String commandString = "INSERT INTO tblstudent(studentID, studentName, studentaddress) VALUES (@ID, @name, @address)";
+
+            	insertRecord(txtId.Text, txtName.Text, txtAddress.Text, commandString);
+            	populateListBox ();
+            	cleartxtBoxes ();
+        	}
+End Class
